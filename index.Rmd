@@ -308,17 +308,17 @@ And this is where you may start to understand the usefulness of this `i`. Thanks
 
 ```{r for4, exercise =TRUE}
 for(i in storms){
-    print(class(i))
+    print(is.numeric(i))
 }
 ```
 
-This works because for R, a dataframe is a list of columns. So `i in imdb` will sequentially makes i become each column of the dataframe imdb.
+This works because for R, a dataframe is a list of columns. So `i in storms` will sequentially make i become each column of the dataframe storms. The function `is.numeric` will then check if the column is of type numeric and return either TRUE or FALSE, hence the output.
 
 
-### if else
+### if/else
 
 
-Another fundamental type of commands in programming are `if/else` statements. These are commonly used inside loops to further adapt the task to each specific iteration. The structure is fairly similar to the one for the `for` loop. We start with the keyword `if`, then inside brackets we place a condition to check, then inside curly brackets we place the task to perform if the condition is verified. 
+Another fundamental type of commands in programming are `if/else` statements. It is used to ask R to perform different tasks depending on a condition. If else statements are commonly used inside loops to further adapt the task to each specific iteration. The structure is fairly similar to the one for the `for` loop. We start with the keyword `if`, then inside brackets we place a condition to check, then inside curly brackets we place the task to perform if the condition is verified. 
 
 Here is a first example:
 ```{r if1, exercise =TRUE}
@@ -352,12 +352,12 @@ if(a<5){
 ```
 
 
-Let's tweak our last for loop by adding an if/else statement inside. For each column of storm, if the column if of class "numeric", we will calculate and print the mean of that column. Otherwise, we will print a message saying that we can't calculate the mean:
+Let's tweak our last for loop by adding an if/else statement inside. For each column of storm, if the column is "numeric", we will calculate and print the mean of that column. Otherwise, we will print a message saying that we can't calculate the mean:
 
 
 ```{r if4, exercise =TRUE, warning=FALSE}
 for(i in storms){
-    if(class(i)=="numeric"){
+    if(is.numeric(i)==TRUE){
 		  print(mean(i, na.rm=TRUE))
 	}
 	else{
@@ -365,6 +365,11 @@ for(i in storms){
 	}
 }
 ```
+
+
+You may also remember the `ifelse` function, which seemed to do something similar. If/else statements and the ifelse function are definitely related and sometimes we can use them interchangeably, but they have different roles. The if/else statements are faster and more flexible in the tasks you can place inside the curly brackets. In contrast, the advantage of the ifelse function is that it works on vectors and as such, can check multiple conditions at the same time. It also looks cleaner in a script.
+
+
 
 
 

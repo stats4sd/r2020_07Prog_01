@@ -371,15 +371,15 @@ rnorm(10)</code></pre>
 <p>And this is where you may start to understand the usefulness of this <code>i</code>. Thanks to it, we can make each task depend on the value of i, and so if we choose the elements of our vector wisely, we can start doing very interesting things. For example, we could ask R to print the class of each column of a dataset:</p>
 <div class="tutorial-exercise" data-label="for4" data-caption="Code" data-completion="1" data-diagnostics="1" data-startover="1" data-lines="0">
 <pre class="text"><code>for(i in storms){
-    print(class(i))
+    print(is.numeric(i))
 }</code></pre>
 <script type="application/json" data-opts-chunk="1">{"fig.width":6.5,"fig.height":4,"fig.retina":2,"fig.align":"default","fig.keep":"high","fig.show":"asis","out.width":624,"warning":true,"error":false,"message":true,"exercise.df_print":"default","exercise.timelimit":10,"exercise.checker":"NULL"}</script>
 </div>
-<p>This works because for R, a dataframe is a list of columns. So <code>i in imdb</code> will sequentially makes i become each column of the dataframe imdb.</p>
+<p>This works because for R, a dataframe is a list of columns. So <code>i in storms</code> will sequentially make i become each column of the dataframe storms. The function <code>is.numeric</code> will then check if the column is of type numeric and return either TRUE or FALSE, hence the output.</p>
 </div>
-<div id="section-if-else" class="section level3">
-<h3>if else</h3>
-<p>Another fundamental type of commands in programming are <code>if/else</code> statements. These are commonly used inside loops to further adapt the task to each specific iteration. The structure is fairly similar to the one for the <code>for</code> loop. We start with the keyword <code>if</code>, then inside brackets we place a condition to check, then inside curly brackets we place the task to perform if the condition is verified.</p>
+<div id="section-ifelse" class="section level3">
+<h3>if/else</h3>
+<p>Another fundamental type of commands in programming are <code>if/else</code> statements. It is used to ask R to perform different tasks depending on a condition. If else statements are commonly used inside loops to further adapt the task to each specific iteration. The structure is fairly similar to the one for the <code>for</code> loop. We start with the keyword <code>if</code>, then inside brackets we place a condition to check, then inside curly brackets we place the task to perform if the condition is verified.</p>
 Here is a first example:
 <div class="tutorial-exercise" data-label="if1" data-caption="Code" data-completion="1" data-diagnostics="1" data-startover="1" data-lines="0">
 <pre class="text"><code>a &lt;- 3
@@ -406,10 +406,10 @@ if(a&lt;5){
 }</code></pre>
 <script type="application/json" data-opts-chunk="1">{"fig.width":6.5,"fig.height":4,"fig.retina":2,"fig.align":"default","fig.keep":"high","fig.show":"asis","out.width":624,"warning":true,"error":false,"message":true,"exercise.df_print":"default","exercise.timelimit":10,"exercise.checker":"NULL"}</script>
 </div>
-<p>Let’s tweak our last for loop by adding an if/else statement inside. For each column of storm, if the column if of class “numeric”, we will calculate and print the mean of that column. Otherwise, we will print a message saying that we can’t calculate the mean:</p>
+<p>Let’s tweak our last for loop by adding an if/else statement inside. For each column of storm, if the column is “numeric”, we will calculate and print the mean of that column. Otherwise, we will print a message saying that we can’t calculate the mean:</p>
 <div class="tutorial-exercise" data-label="if4" data-caption="Code" data-completion="1" data-diagnostics="1" data-startover="1" data-lines="0">
 <pre class="text"><code>for(i in storms){
-    if(class(i)==&quot;numeric&quot;){
+    if(is.numeric(i)==TRUE){
           print(mean(i, na.rm=TRUE))
     }
     else{
@@ -418,6 +418,7 @@ if(a&lt;5){
 }</code></pre>
 <script type="application/json" data-opts-chunk="1">{"fig.width":6.5,"fig.height":4,"fig.retina":2,"fig.align":"default","fig.keep":"high","fig.show":"asis","out.width":624,"warning":false,"error":false,"message":true,"exercise.df_print":"default","exercise.timelimit":10,"exercise.checker":"NULL"}</script>
 </div>
+<p>You may also remember the <code>ifelse</code> function, which seemed to do something similar. If/else statements and the ifelse function are definitely related and sometimes we can use them interchangeably, but they have different roles. The if/else statements are faster and more flexible in the tasks you can place inside the curly brackets. In contrast, the advantage of the ifelse function is that it works on vectors and as such, can check multiple conditions at the same time. It also looks cleaner in a script.</p>
 </div>
 </div>
 <div id="section-application---part1" class="section level2">
