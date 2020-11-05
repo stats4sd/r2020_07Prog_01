@@ -315,7 +315,7 @@ for(i in storms){
 }
 ```
 
-This works because for R, a dataframe is a list of columns. So `i in storms` will sequentially make i become each column of the dataframe storms. The function `is.numeric` will then check if the column is of type numeric and return either TRUE or FALSE, hence the output.
+This may not be the most intuitive command ever but once you know that in R, a dataframe is a list of columns, in the same way as a vector c(1,2,3,4,5) is a list of values, then you can see that when we write `i in storms` we are actually saying "i in column1, column2, column3, etc.". Therefore `i in storms` will sequentially make i become each column of the dataframe storms. The function `is.numeric` will check if the column is of type numeric and return either TRUE or FALSE, hence the output.
 
 
 ### if/else
