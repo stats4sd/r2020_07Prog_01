@@ -38,6 +38,35 @@ Finally, we should not forget that a lot of tools are already available, so we r
 
 
 
+### the 'storms' dataset
+
+This workbook does not rely heavily on data, but we are going to use the dataset 'storms' that is provided as part of the dplyr package from time to time. The 'storms' dataset is a subset of the <a href="https://www.nhc.noaa.gov/data/#hurdat" target="_blank">Atlantic hurricane database</a>. In it, we will find six-hourly information on location and attributes for 198 tropical cyclones. 
+
+
+The columns making up the dataset are as follows:
+
+```{r, echo=FALSE,message=FALSE,warning=FALSE}
+library(knitr)
+data.frame(Column=c("name","year","month","day","hour","lat","long","status", "category","wind","pressure", "ts_diameter", "hu_diameter"),
+           Description=c("Storm name",
+                         "Year of report",
+                         "Month of report",
+                         "Day of report",
+                         "Hour of report (UTC)",
+                         "Latitude",
+                         "Longitude",
+                         "Storm classification (Tropical Depression, Tropical Storm, or Hurricane)",
+                        "Saffir-Simpson storm category (-1 = Tropical Depression, 0 = Tropical Storm)",
+                        "Storm's maximum wind speed (in knots)",
+                        "Air pressure at the storm's center (in millibars)",
+                        "Diameter of area experiencing tropical storm strength winds (34 knots or above)",
+                        "Diameter of area experiencing hurricane strength winds (64 knots or above)")) %>% kable()
+
+```
+
+
+
+
 ## Generating Randomness
 
 
@@ -462,6 +491,24 @@ So I hope we agree that creating functions in R is not very difficult. And using
 
 You may be surprised by this question, but it is a good one that we should ask ourselves when we are thinking of writing functions. Because remember that R is open source and has been around for a while now. so lots of people have written packages with useful functions. According to <a href="https://www.rdocumentation.org/" target="_blank">RDocumentation </a> there are more than 20000 packages available on the CRAN, Bioconductor and Github. So if the function that we are thinking of writing solves a problem that other people may have, chances are that some people have already written some nice function that solves the problem in a way that is even better than we imagined, and have made it part of a package that we can freely install on our machine. That's not to say that we should never write function. Some of us enjoy programming for the sake of programming, so we may sometimes prefer writing our own code. But if time is a concern, we should likely look at what's existing first.
 
+Also note that packages can also provide datasets in addition to functions, either to help one test the functions, or sometimes simply because the datasets themselves are considered of interest for the R community. The function `data()` gives the list of all the datasets readily available on an R session, as part of the loaded libraries.
+
+```{r data, exercise =TRUE, warning=FALSE}
+data()
+```
+In this workbook, the package tidyverse was loaded, so we have access to the datasets provided in the packages making up the tidyverse collection. If we look down towards the *Datasets in package 'dplyr'*, we can see the `storms` dataset that we've been using a few times in this workbook. We also see a dataset called `starwars`. Since it is part of the output of data(), we have direct access to it:
+
+```{r data2, exercise =TRUE, warning=FALSE}
+starwars
+```
+
+I can't resist but checking who is the oldest character in the dataset:
+
+```{r data3, exercise =TRUE, warning=FALSE}
+starwars %>%
+  filter(birth_year==max(birth_year, na.rm=TRUE))
+```
+Right, not a surprise.
 
 
 ### Where to find good packages?
