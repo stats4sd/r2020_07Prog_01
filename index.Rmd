@@ -127,45 +127,96 @@ storms %>%
 
 ### Simulations
 
-We can also generate random numbers from theoretical distribution, which is useful to simulate data. In R, there are usually four functions associated with a theoretical distribution. One provides the density of the distribution, one gives cumulative probabilities, one is the quantile function and one generates random numbers from the distribution. The names of these functions are identical, except for the first letter (`d`, `p`, `q` or `r`). The functions to generate random numbers are those that start with an `r`. Here is the list of theoretical distribution functions available in base-R. The random generation functions are on the last column. 
+We can also generate random numbers from theoretical distributions, which is useful to simulate data. The function to generate random numbers from a normal distribution is `rnorm()`. Its arguments are
 
-```{r echo=FALSE, out.width="80%", fig.align='center'}
-include_graphics("./images/dist.PNG")
+- **n**, the number of random values to generate  
+- **mean**, the mean of the normal distribution from which we are drawing numbers
+- **sd**, the standard deviation of this normal distribution 
+
+So to generate three random numbers coming from a normal distribution with mean 2 and standard deviation 0.5, we would write the following command:
+
+```{r rnorm, exercise =TRUE}
+rnorm(n=3, mean=2, sd=0.5)
+```
+
+If we omit the arguments mean and sd, R will pick the default values that are 0 for the mean and 1 for the standard deviation. That is we will be drawing numbers from a standard normal distribution:
+
+```{r rnorm2, exercise =TRUE}
+rnorm(n=3)
+```
+Let's use `rnorm()` to simulate a dataframe with 100 observations and two normally distributed variables var1 and var2:
+
+```{r rnorm3, exercise =TRUE}
+randomData <- data.frame(var1=rnorm(n=100, mean=0, sd=1),
+                         var2=rnorm(n=100, mean=3, sd=2))
+randomData
+```
+Pretty straightforward, no?
+
+Let's make a scatter plot from such simulated dataset:
+```{r rnorm4, exercise =TRUE}
+randomData <- data.frame(var1=rnorm(n=100, mean=0, sd=1),
+                         var2=rnorm(n=100, mean=3, sd=2))
+
+randomData %>%
+  ggplot(aes(x=var1, y=var2))+
+    geom_point()
 ```
 
 
-This may be a bit overwhelming, so here is a small subset of it:
+
+We can draw random number from other types of theoretical distributions. The most commonly used functions to generate random numbers are probably these ones:
 
 - `rnorm()` which samples from the Normal distribution  
 - `rbinom()` which samples from the Binomial distribution 
 - `rpois()` which samples from the Poisson distribution  
 - `runif()` which samples from the Uniform distribution  
 
+Note that the Uniform distribution corresponds to the situation where all the numbers in an interval have equal probability of being picked. So `runif()` is the function to use when we want to randomly pick a number between 0 and 1.
 
-These are probably the most commonly used functions to generate random samples for a lot of people. If you feel you need some refresher on the concept of probability distributions, <a href="http://www.zstatistics.com/videos/#/distributions" target="_blank">here </a> is a pretty good series of videos:
+If you feel you need some refresher on the concept of probability distributions, <a href="http://www.zstatistics.com/videos/#/distributions" target="_blank">here </a> is a pretty good series of videos.
 
 
-The first argument for all of these functions is `n`, the number of random values to generate. The arguments that follow specify some eventual parameters for the distribution.
+The first argument for all of these '**r**functions' is `n`, the number of random values to generate. The arguments that follow specify some eventual parameters for the distribution. For `rnorm()` it was the mean and the standard deviation, but for `runif()`, it is the minimum (min) and maximum (max). 
 
-Here are three random numbers coming from a standard normal distribution: 
+
+
+Here are five random numbers coming from a uniform distribution on the interval [0 - 10]:
 
 ```{r simu1, exercise =TRUE}
-rnorm(3)
+runif(5, min=0, max=10)
 ```
 
-Here are six random numbers coming from a normal distribution with mean 5 and standard deviation 2: 
-
+And here are 6 random numbers piked from a binomial distribution with parameters size=10 and prob=0.1
 ```{r simu2, exercise =TRUE}
-rnorm(6, 5, 2)
+rbinom(6, size=10, prob=0.1)
 ```
 
-And here are five random numbers coming from a uniform distribution between 0 and 10:
+The help of R - that we access with `?` is quite good to know what to write inside the brackets as all these functions work the same way, except for the parameters of the distribution.
 
 ```{r simu3, exercise =TRUE}
-runif(5, 0, 10)
+?rbinom
 ```
 
-The help menu - that you access with `?`. ie: `?rnorm` - is quite good for this types of functions, as they all work the same way, except for the parameters of the distribution.
+You might be confused to see four functions in the help page for `rbinom()` though:
+
+- dbinom()  
+- pbinom()  
+- qbinom()  
+- rbinom()  
+
+
+
+That's because in general, R provides four functions for each theoretical distribution. Their names are identical except for the first letter. One is the density function of the distribution (`dxxx`), one gives cumulative probabilities (`pxxx`), one is the quantile function (`qxxx`) and one generates random numbers from the distribution (`rxxx`). In this workbook, we are only interested in generating random numbers, so we are focused on the 'rxxx' functions. But if you want to know more about the other functions, <a href="https://www.datascienceblog.net/post/basic-statistics/distributions/" target="_blank">here </a> is a good place to start.
+
+
+And here is the list of theoretical distribution functions available in base-R. The random generation functions are on the last column. 
+
+```{r echo=FALSE, out.width="80%", fig.align='center'}
+include_graphics("./images/dist.PNG")
+```
+
+
 
 
 
@@ -315,7 +366,7 @@ for(i in storms){
 ```
 
 
-### functions
+## Creating functions
 
 When we have a set of commands that solves a problem that we expect to face multiple times, it may be a good idea to create a function out of these commands. That way we can call this function - in the same way we used all the functions we've seen so far - instead of having the write the commands again. Functions are a great way to keep scripts clean and readable.
 
@@ -600,3 +651,4 @@ Probability distribution series of video from the Z Statistics website: <a href=
 
 How to Generate Pseudorandom Numbers, Infinite Series <a href="https://www.youtube.com/watch?v=C82JyCmtKWg" target="_blank">https://www.youtube.com/watch?v=C82JyCmtKWg </a>
 
+Using probability distributions in R - Data Science Blog: <a href="https://www.datascienceblog.net/post/basic-statistics/distributions/" target="_blank">https://www.datascienceblog.net/post/basic-statistics/distributions/ </a>
