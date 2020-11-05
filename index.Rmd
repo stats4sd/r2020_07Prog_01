@@ -140,7 +140,7 @@ So to generate three random numbers coming from a normal distribution with mean 
 rnorm(n=3, mean=2, sd=0.5)
 ```
 
-If we omit the arguments mean and sd, R will pick the default values that are 0 for the mean and 1 for the standard deviation. That is we will be drawing numbers from a standard normal distribution:
+If we omit the arguments mean and sd, R will pick the default values that are 0 for the mean and 1 for the standard deviation. That is, we will be drawing numbers from a standard normal distribution:
 
 ```{r rnorm2, exercise =TRUE}
 rnorm(n=3)
@@ -193,11 +193,14 @@ And here are 6 random numbers piked from a binomial distribution with parameters
 rbinom(6, size=10, prob=0.1)
 ```
 
-The help of R - that we access with `?` is quite good to know what to write inside the brackets as all these functions work the same way, except for the parameters of the distribution.
+The help of R - that we access with `?` - is quite good to know what to write inside the brackets as all these functions, as they all work the same way, except for the parameters of the distribution.
+
 
 ```{r simu3, exercise =TRUE}
 ?rbinom
 ```
+The help menu doesn't show nicely in the online workbook, so <a href="https://www.rdocumentation.org/packages/stats/versions/3.3/topics/Binomial" target="_blank">here </a> is the online version:
+
 
 You might be confused to see four functions in the help page for `rbinom()` though:
 
