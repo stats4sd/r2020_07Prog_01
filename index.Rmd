@@ -1,0 +1,555 @@
+---
+title: "Generating Randomness & Programming"
+output: 
+  learnr::tutorial:
+    progressive: true
+    allow_skip: true
+    df_print: default
+runtime: shiny_prerendered
+description: >
+  Sampling and Simulations in R.
+---
+
+
+
+```{r setup, include=FALSE}
+library(learnr)
+library(tidyverse)
+library(knitr)
+tutorial_options(exercise.timelimit = 10)
+
+
+#Pulse<-readRDS("Pulse.RDS")
+#SurveyData<-readRDS("SurveyData.RDS")
+
+
+```
+
+
+## Overview
+
+At the very basis of data analysis and statistics, lies the concepts of pattern and randomness. So far, we've mostly used R to detect patterns or relationships in data, using graphs, summary statistics, statistical tests or statistical modelling.
+
+But we can also use R to **generate randomness**, which is essential for things like creating random samples, randomising treatments, doing simulation studies, or performing sampling or randomisation-based statistical analysis. We will learn how to generate randomness in the first part of this workbook.
+
+In addition to looking for patterns or generating randomness, we can also use R to build new tools that will help us in our tasks. That is we can **program and create functions**. That's what we'll look at in the second part of this workbook.
+
+Finally, we should not forget that a lot of tools are already available, so we rarely need to reinvent the wheel, and in the third part of this workbook, we will see how we can **find good packages**.
+
+
+
+## Generating Randomness
+
+
+
+### Sampling
+
+
+The base-R function to generate a random sample from a list of values is `sample()`. It needs the list of values as the first argument, and the number of values to sample as the second argument. To sample 5 different random values between 1 and 10, we would write the following command:
+
+```{r sample_1, exercise =TRUE}
+sample(1:10, 5)
+```
+
+The second argument is optional though and if we omit it, R generates as many random values as there are elements in the list of values. That is, it just permutes the list of values indicated as the first argument.
+
+```{r sample_2, exercise =TRUE}
+sample(1:10)
+```
+
+By default `sample()` samples without replacement, so we get an error if we ask for more values than there is in our list
+
+```{r sample_3, exercise =TRUE}
+sample(1:10, 20)
+```
+
+But we can ask R to sample *with* replacement using the argument `replace=TRUE`:
+
+```{r sample_4, exercise =TRUE}
+sample(1:10, 20, replace=TRUE)
+```
+
+
+
+`sample()` can sample from any kind of values, not just numeric ones. For example, if we had two treatments that we wanted to allocate randomly to say, 20 individuals, we could do so with the following command:
+
+```{r sample_4b, exercise =TRUE}
+sample(c("Treatment 1", "Treatment 2"), 20, replace=TRUE)
+```
+
+And we can also assign probability weights to our list of values, so that some values get picked more often than others, using the argument `prob`. Here is how we'd ask R to randomly pick 50 values out of "control", "treatment 1" and "treatment 2", if we wanted the value "control" to get the same probability of being picked than the two treatments combined:
+
+```{r sample_5, exercise =TRUE}
+sample(c("Control", "Treatment 1", "Treatment 2"), 50, replace=TRUE, prob = c(0.5,0.25,0.25))
+```
+
+The values indicated for the prob argument don't have to add up to 1 though. They really can be any kind of weights. So the command below is equivalent to the previous one:
+```{r sample_6, exercise =TRUE}
+sample(c("Control", "Treatment 1", "Treatment 2"), 50, replace=TRUE, prob = c(4.2,2.1,2.1))
+```
+
+The package dplyr also provides the function `slice_sample()` for randomly sampling rows of a dataset. We need to indicate the dataset first, and then we either indicate the argument n, the number of rows that we want to sample, or prop, the proportion of rows that we want to sample. The argument "replace=TRUE" can also be used if we wish to sample with replacement. Let's sample 10 rows randomly from the dataset storms
+```{r sample_7, exercise =TRUE}
+storms %>%
+  slice_sample(n=10)
+```
+
+
+
+### Simulations
+
+We can also generate random numbers from theoretical distribution, which is useful to simulate data. In R, there are usually four functions associated with a theoretical distribution. One provides the density of the distribution, one gives cumulative probabilities, one is the quantile function and one generates random numbers from the distribution. The names of these functions are identical, except for the first letter (`d`, `p`, `q` or `r`). The functions to generate random numbers are those that start with an `r`. Here is the list of theoretical distribution functions available in base-R. The random generation functions are on the last column. 
+
+```{r echo=FALSE, out.width="80%", fig.align='center'}
+include_graphics("./images/dist.PNG")
+```
+
+
+This may be a bit overwhelming, so here is a small subset of it:
+
+- `rnorm()` which samples from the Normal distribution  
+- `rbinom()` which samples from the Binomial distribution 
+- `rpois()` which samples from the Poisson distribution  
+- `runif()` which samples from the Uniform distribution  
+
+
+These are probably the most commonly used functions to generate random samples for a lot of people. If you feel you need some refresher on the concept of probability distributions, <a href="http://www.zstatistics.com/videos/#/distributions" target="_blank">here </a> is a pretty good series of videos:
+
+
+The first argument for all of these functions is `n`, the number of random values to generate. The arguments that follow specify some eventual parameters for the distribution.
+
+Here are three random numbers coming from a standard normal distribution: 
+
+```{r simu1, exercise =TRUE}
+rnorm(3)
+```
+
+Here are six random numbers coming from a normal distribution with mean 5 and standard deviation 2: 
+
+```{r simu2, exercise =TRUE}
+rnorm(6, 5, 2)
+```
+
+And here are five random numbers coming from a uniform distribution between 0 and 10:
+
+```{r simu3, exercise =TRUE}
+runif(5, 0, 10)
+```
+
+The help menu - that you access with `?`. ie: `?rnorm` - is quite good for this types of functions, as they all work the same way, except for the parameters of the distribution.
+
+
+
+
+### Reproducibility
+
+One thing that can sometimes be an issue when we use functions that generate randomness in a script is that each time we run the script, the generated values change. Therefore, if we pass on the script to someone else, they will not get the same exact results even though they are running the same script. We can fix this though, because the generation of randomness by computers is never truly random. It is based on some algorithm that take a "seed" number as input and then generates numbers based on this seed. This "seed" is usually based on the internal clock of your computer and so it changes all the time. But we can fix the seed manually using the function `set.seed()` by indicating an integer - the seed - inside the brackets.
+
+If you run the command below multiple times, you will get multiple different outputs
+
+```{r rep1, exercise =TRUE}
+sample(1:20, 5)
+rnorm(10)
+```
+
+But if you run the command below multiple times, you will always get the same output
+
+```{r rep2, exercise =TRUE}
+set.seed(34)
+sample(1:20, 5)
+rnorm(10)
+```
+
+
+To learn more about how programming languages like R can generate pseudorandom numbers, have a look at <a href="https://www.youtube.com/watch?v=C82JyCmtKWg" target="_blank">this nice video</a>.
+
+Also note that if ever you need true randomness for your work, the package `random` provides functions to access the true random number service of <a href="https://www.random.org/" target="_blank">random.org </a> that uses real atmospheric noise to generate random numbers.
+
+
+
+
+
+
+
+
+
+
+
+
+
+## Programming
+
+Even though R is specialised in statistical analysis and data visualisation, R remains a proper programming language that has all the capabilities of more general programming languages. In particular we can make loops, use if statements and create functions. 
+
+
+### The for loop
+
+Loops allow one to perform some task multiple times, without having to duplicate the command for the task. Loops are fundamental in most programming languages. They are a bit less fundamental for R users as there are often ways to achieve the result of a loop by other simpler means. But they remain something useful that is worth knowing about, and in some cases, they may still be the best choice.
+
+There are a few types of loops that one can do in R. The most useful ones are the `for` and the `while` loops. Both have a similar syntax where we write the loop keyword first (`for` or `while`), followed by a description of the number of iterations inside regular round brackets `( )`, and then the task to perform inside curly brackets `{ }`.
+
+Let's make a `for` loop that prints "Hello!" 10 times.
+
+To print "Hello!", we use the function `print()` 
+
+```{r for1, exercise =TRUE}
+print("Hello!")
+```
+
+
+You may wonder why we need the print function since the command "Hello!" would achieve the same result. Well a command "Hello!" works in this simple case, but inside a loop or a function, we need to explicitly say what we want to print on the screen. Otherwise nothing will be printed.
+
+Then, to print "Hello!" 10 times using a for loop, we need to insert our command inside curly brackets and tell R how many times times it should run what's inside the curly brackets.
+
+```{r for2, exercise =TRUE}
+for(i in 1:10){
+	print("Hello!")
+}
+```
+
+
+`i in 1:10` is asking R to create an object `i` (we could have called it differently) and to give it the value 1, then 2, then 3,  and so on, till 10.
+The keyword `for` is then asking R to perform the task inside the curly brackets each time i is given a new value. Since there are 10 elements in 1:10, R will therefore sequentially assign 10 values to `i` and print "Hello!" 10 times.
+
+We can check that `i` is given all the values from 1 to 10 by printing `i` rather than "Hello!":
+
+
+```{r for3, exercise =TRUE}
+for(i in 1:10){
+	print(i)
+}
+```
+
+
+
+And this is where you may start to understand the usefulness of this `i`. Thanks to it, we can make each task depend on the value of i, and so if we choose the elements of our vector wisely, we can start doing very interesting things. For example, we could ask R to print the class of each column of a dataset:
+
+
+```{r for4, exercise =TRUE}
+for(i in storms){
+    print(class(i))
+}
+```
+
+This works because for R, a dataframe is a list of columns. So `i in imdb` will sequentially makes i become each column of the dataframe imdb.
+
+
+### if else
+
+
+Another fundamental type of commands in programming are `if/else` statements. These are commonly used inside loops to further adapt the task to each specific iteration. The structure is fairly similar to the one for the `for` loop. We start with the keyword `if`, then inside brackets we place a condition to check, then inside curly brackets we place the task to perform if the condition is verified. 
+
+Here is a first example:
+```{r if1, exercise =TRUE}
+a <- 3
+if(a<5){
+  print(a)
+}
+
+```
+We fix a equals 3. Since a is lower than 5, the condition inside the if brackets is true and R performs the task in the curly brackets, that is, it prints the value of a. If we change the value of a to 7 though, nothing is printed:
+
+```{r if2, exercise =TRUE}
+a <- 7
+if(a<5){
+  print(a)
+}
+
+```
+
+
+But we can then add an `else` keyword followed by curly brackets just after the closed curly bracket of the if statement to ask R to perform another task if the condition is not verified:
+
+```{r if3, exercise =TRUE}
+a <- 7
+if(a<5){
+  print(a)
+} else{
+  print(-a)
+}
+
+```
+
+
+Let's tweak our last for loop by adding an if/else statement inside. For each column of storm, if the column if of class "numeric", we will calculate and print the mean of that column. Otherwise, we will print a message saying that we can't calculate the mean:
+
+
+```{r if4, exercise =TRUE, warning=FALSE}
+for(i in storms){
+    if(class(i)=="numeric"){
+		  print(mean(i, na.rm=TRUE))
+	}
+	else{
+		  print("can't calculate the mean!")
+	}
+}
+```
+
+
+### functions
+
+When we have a set of commands that solves a problem that we expect to face multiple times, it may be a good idea to create a function out of these commands. That way we can call this function - in the same way we used all the functions we've seen so far - instead of having the write the commands again. Functions are a great way to keep scripts clean and readable.
+
+
+We define a function using the function `function()` and by placing the commands for the function inside curly brackets:
+
+```{r fun1, exercise =TRUE}
+function(){
+  
+}
+```
+
+The output of the command above is a bit weird, but that's because we didn't give a name to our function. We do that using the usual assignment symbol `<-`
+```{r fun2, exercise =TRUE}
+myFunction <- function(){
+  
+}
+```
+
+and we can then use our function like any other function:
+```{r fun3, exercise =TRUE}
+myFunction <- function(){
+  
+}
+myFunction()
+```
+
+Yes for now our function doesn't do anything because there is nothing inside the brackets, so R returns NULL.
+
+We can make the function return something, with the function `return()`
+
+```{r fun4, exercise =TRUE}
+myFunction <- function(){
+  return(2)
+}
+myFunction()
+```
+Our function returns 2 each time we call it. What an awesome function!!!
+
+Note that in online workbooks, code windows are completely independent from each other, so whenever we are working within one window and want to use a function that is not part of the loaded libraries, we need to include the definition of the function in that window before we use the function. A bit annoying, but this is specific to these online workbooks. We don't have this issue when we work offline with RStudio.
+
+
+Usually, when we create a function, we need to give it some arguments for it to be useful. We indicate these arguments inside the round brackets of `function()`. Below we are telling R that the function `myFunction()` takes an argument called "a":
+
+```{r fun5, exercise =TRUE}
+myFunction <- function(a){
+}
+
+```
+
+Once an argument has been given to a function, it can be used inside the curly brackets. Here is a function that adds one
+```{r fun6, exercise =TRUE}
+addOne <- function(a){
+  return(a+1)
+}
+```
+
+Let's see if the function works:
+```{r fun7, exercise =TRUE}
+addOne <- function(a){
+  return(a+1)
+}
+addOne(12)
+```
+Yes, it works!!
+
+If we call the function without providing a value for the argument, we get an error:
+```{r fun8, exercise =TRUE}
+addOne <- function(a){
+  return(a+1)
+}
+addOne()
+```
+
+The error is telling us that *"a" is missing, with no default*. That's because We can provide a default value to our argument. With a default value, we don't get an error. R just use the default value if we don't provide one :
+
+```{r fun9, exercise =TRUE}
+addOne <- function(a=7){
+  return(a+1)
+}
+addOne()
+```
+
+Obviously, we can have more than one argument in a function. We simply list them all inside the brackets, separated by commas. Here is a first function that takes three arguments called "hours", "minutes" and "seconds", make a calculation using these arguments, and return the result.
+
+```{r fun10, exercise =TRUE}
+timeToSeconds <- function(hours, minutes){
+  result <- hours*60*60 + minutes*60
+  return(result)
+}
+timeToSeconds(2,30)
+```
+As you probably figured out, the calculation turns hours and minutes into seconds and add it all. So converted in seconds, 2 hour and 30 minutes is 9000 seconds. Youhou! So useful to know!
+
+
+Our arguments don't have to be numbers, they can be anything, including dataframe. We would need that to be able to use pipes with our function.
+
+Let's insert our for loop that calculate the mean of all the numeric column of a dataset in a function. As a reminder, here was our loop:
+
+```{r fun11, exercise =TRUE, warning=FALSE}
+for(i in storms){
+    if(class(i)=="numeric"){
+		  print(mean(i, na.rm=TRUE))
+	}
+	else{
+		  print("can't calculate the mean!")
+	}
+}
+```
+
+Let's place it inside a function called `means`
+```{r fun12, exercise =TRUE, warning=FALSE}
+means <- function(){
+  for(i in storms){
+    if(class(i)=="numeric"){
+		  print(mean(i, na.rm=TRUE))
+	  }
+	  else{
+		  print("can't calculate the mean!")
+	  }
+  }
+}
+
+```
+
+Now for this function to work on any data, not just storms, we need to give it an argument and to replace storms by this argument
+```{r fun13, exercise =TRUE, warning=FALSE}
+means <- function(data){
+  for(i in data){
+    if(class(i)=="numeric"){
+		  print(mean(i, na.rm=TRUE))
+	  }
+	  else{
+		  print("can't calculate the mean!")
+	  }
+  }
+}
+
+```
+That way, if we call the function with a dataframe as its first argument, this dataframe will be passed in the for statement and for each column of this dataframe, R will either calculate and print the mean or print a message. Moreover, since the first argument is a dataset, we should be able to use the pipe operator. Let's try:
+
+```{r fun14, exercise =TRUE, warning=FALSE}
+means <- function(data){
+  for(i in data){
+    if(class(i)=="numeric"){
+		  print(mean(i, na.rm=TRUE))
+	  }
+	  else{
+		  print("can't calculate the mean")
+	  }
+  }
+}
+
+storms %>%
+  means()
+
+```
+
+Yes, it works!
+
+
+
+## Estimating pi
+
+
+
+
+
+## Finding good packages
+
+So I hope we agree that creating functions in R is not very difficult. And using loops, if/else statements and a bit of randomness, we can definitely create extremely useful functions that help us in our work. But should we write these useful functions?
+
+
+You may be surprised by this question, but it is a good one that we should ask ourselves when we are thinking of writing functions. Because remember that R is open source and has been around for a while now. so lots of people have written packages with useful functions. According to <a href="https://www.rdocumentation.org/" target="_blank">RDocumentation </a> there are more than 20000 packages available on the CRAN, Bioconductor and Github. So if the function that we are thinking of writing solves a problem that other people may have, chances are that some people have already written some nice function that solves the problem in a way that is even better than we imagined, and have made it part of a package that we can freely install on our machine. That's not to say that we should never write function. Some of us enjoy programming for the sake of programming, so we may sometimes prefer writing our own code. But if time is a concern, we should likely look at what's existing first.
+
+
+
+### Where to find good packages?
+
+Not all the 20000 packages available are of good quality though, so it is important to know where and how to find good packages.
+
+The place hosting the largest number of good quality packages is surely the <a href="https://cran.r-project.org/" target="_blank">CRAN</a>, the official repository of R packages. To date, it hosts more than 16000 packages and to be published on the CRAN, a package needs to pass some tests that may ensure a certain degree of quality. But there are also good packages in <a href="https://www.bioconductor.org/" target="_blank">Bioconductor</a>, which is a curated repository hosting packages primarily targeted for Bioinformatics tasks. And <a href="https://github.com/" target="_blank">GitHub</a>, which is the most popular repository of open source projects (not specific to R) also hosts a good number of interesting R packages. There is no review process on Github though.
+
+
+
+Now here are some ways to find good packages that will fit your needs:
+
+- First there are the packages of <a href="https://www.tidyverse.org/" target="_blank">tidyverse  </a>. These packages are always pretty good picks. 
+
+
+- Then there is this nice <a href="https://support.rstudio.com/hc/en-us/articles/201057987-Quick-list-of-useful-R-packages" target="_blank">list of recommended packages</a>, arranged by topic and updated regularly by Garrett Grolemund, a Statistician working at RStudio. A good list!
+
+
+- For a more consequent list of packages of good quality by topic, the  <a href="https://cran.r-project.org/web/views/" target="_blank">CRAN Task Views </a> is surely a good website to explore. Click on the topic that you are interested in, have a read through or do a quick CTRL+F to search for some strategic keyword. 
+
+ 
+-  <a href="https://www.r-pkg.org/starred" target="_blank">METACRAN </a> ranks packages based on some statistics (number of downloads, most depended upon, number of stars on github) that are likely partly correlated with the quality and usefulness of the associated packages.
+
+
+- <a href="https://www.rdocumentation.org/" target="_blank">RDocumentation </a> has a search box that will bring you to the packages whose name or functions contain your keyword. You will also have some percentile rank statistics based on download count that can help in your decision. 
+
+
+- <a href="https://rseek.org/" target="_blank">RSeek </a> is a search engine specific to R and when you search for a keyword, there is a tab providing popular packages related to your keyword. 
+
+- Finally during your "search for help" journey on the web, the packages that appear mentioned multiple times are also probably descent packages.
+
+
+
+
+### Installing package
+Once you found the package that you need, you need to install it. The way to install a package depends on where it is hosted.
+
+If the package is hosted on the CRAN, you can install it using the command
+`install.packages("name_of_the_package")`  
+or using the RStudio menu `Packages -> Install`
+
+
+If the package is hosted on Bioconductor, you will need to load a script from Bioconductor using this command:
+`source("https://bioconductor.org/biocLite.R")`
+and then you can load the package of your choice using the function biocLite:  
+`biocLite("name_of_the_package")`
+
+
+Finally, for packages hosted on Github, you need to load the library `devtools` first (which is on the CRAN, so you can use the command above if it's not installed on you machine yet):  
+`library(devtools)`  
+And then you will have to use this command to install the package:  
+`install_github("path_of_package_on_Github")`
+
+But don't worry, for packages on Bioconductor and Github, the commands that you will need to write to install the package will probably also be given on the page describing the package. 
+
+
+
+
+
+
+## Appendix:  Useful reference links  
+
+
+The tidyverse website: <a href="https://www.tidyverse.org/" target="_blank">https://www.tidyverse.org/   </a> 
+
+Garrett Grolemund's list of recommanded packages: <a href="https://support.rstudio.com/hc/en-us/articles/201057987-Quick-list-of-useful-R-packages" target="_blank">https://support.rstudio.com/hc/en-us/articles/201057987-Quick-list-of-useful-R-packages</a> 
+
+CRAN Task Views: <a href="https://cran.r-project.org/web/views/" target="_blank">https://cran.r-project.org/web/views/ </a>
+
+METACRAN website: <a href="https://www.r-pkg.org/" target="_blank">https://www.r-pkg.org/ </a>
+
+RDocumentation website: <a href="https://www.rdocumentation.org/" target="_blank">https://www.rdocumentation.org/ </a>
+
+
+RSeek: <a href="https://rseek.org/" target="_blank">https://rseek.org/ </a>
+
+The CRAN: <a href="https://cran.r-project.org/" target="_blank">https://cran.r-project.org/ </a>
+
+
+
+Bioconductor: <a href="https://www.bioconductor.org/" target="_blank">https://www.bioconductor.org/ </a>
+
+Github: <a href="https://github.com/" target="_blank">https://github.com/ </a>
+
+
+David Robinson's youtube playlist of Riddler Puzzles solved via simulations in R: <a href="https://www.youtube.com/playlist?list=PL19ev-r1GBwl4eZGfMc6YJIYFSx8YlzBY" target="_blank">https://www.youtube.com/playlist?list=PL19ev-r1GBwl4eZGfMc6YJIYFSx8YlzBY </a>
+
+Probability distribution series of video from the Z Statistics website: <a href="http://www.zstatistics.com/videos/#/distributions" target="_blank">http://www.zstatistics.com/videos/#/distributions </a>
+
+How to Generate Pseudorandom Numbers, Infinite Series <a href="https://www.youtube.com/watch?v=C82JyCmtKWg" target="_blank">https://www.youtube.com/watch?v=C82JyCmtKWg </a>
+
