@@ -16,6 +16,7 @@ description: >
 library(learnr)
 library(tidyverse)
 library(knitr)
+library(gridExtra)
 tutorial_options(exercise.timelimit = 10)
 
 
@@ -153,7 +154,7 @@ randomData
 ```
 Pretty straightforward, no?
 
-Let's make a scatter plot from such simulated dataset:
+Let's now make a scatter plot from such simulated dataset:
 ```{r rnorm4, exercise =TRUE}
 randomData <- data.frame(var1=rnorm(n=100, mean=0, sd=1),
                          var2=rnorm(n=100, mean=3, sd=2))
@@ -163,7 +164,7 @@ randomData %>%
     geom_point()
 ```
 
-
+Looks pretty random.
 
 We can draw random number from other types of theoretical distributions. The most commonly used functions to generate random numbers are probably these ones:
 
@@ -366,6 +367,129 @@ for(i in storms){
 ```
 
 
+
+
+## Application - part1
+
+In Module 5 we mentioned how the "central limit theorem" allows us to justify the use of a t-test when we have a non-normal distribution. This is because the distribution of the sample mean tends to a normal distribution even from underlying data distributions which are extremely non-normal.
+
+We can prove this through using a combination of the simulation functions we have seen, and using loops to create lots of simulations.
+
+Let's start by saying we have something which is definitely not a normal distribution. Let's say we have 200 observations of an exponential distribution, with a mean of 10, so the 'rate' parameter of this distribution is then equal to 0.1.
+
+```{r clt1,exercise=TRUE}
+rexp(n=200,rate=0.1)
+```
+
+
+Probably the best way to look at all these numbers is in a histogram! Remember that to use ggplot2 we need to have data stored in a data frame first. So I will create a new data frame and pipe into ggplot.
+
+
+```{r clt2, exercise =TRUE, warning=FALSE}
+data.frame(sims=rexp(n=200, rate=0.1)) %>%
+  ggplot(aes(x=sims))+
+    geom_histogram()
+```
+
+Pretty clearly not a normal distribution! And you should see that every time you press run the distribution will change slightly, because a different simulation is being done.
+
+It would be the same if we were calculating the mean value
+
+```{r clt3, exercise =TRUE, warning=FALSE}
+mean(rexp(n=200,rate=0.1))
+```
+Every time we press run, a different simulation is made, and we obtain a different mean value.
+But what we might want to do is simulate this process 100 times (or 1000 times, 10000 times or 100000 times) and look at the distribution of the mean values from those simulations.
+
+We could use a for loop to run 100 simulations - we start with 100, but later, we will increase this number:
+
+```{r clt4, exercise =TRUE, warning=FALSE}
+for(i in 1:100){
+  mean(rexp(n=200,rate=0.1))
+}
+```
+
+We have just run 100 simulations... but no output was created. We could use print, but this would just print the means in the console window, when what we really want is to store the means in a new data frame.
+
+We could store every single simulated value from every single one of our simulations if we really wanted to. But this would quickly result in a huge data set. All we are interested in for this example is the mean value, so we can just store the mean value from each simulation and forget about the simulated values.
+
+The simplest way to do this is to set up a new data frame, with one row per simulation, and a column for the mean values from that simulation. Right now we haven't done the simulations yet, so we should set the second column to be missing.
+
+```{r clt5, exercise =TRUE, warning=FALSE}
+sim_results<-data.frame(sim_number=1:100,sim_mean=NA)
+```
+
+We are now ready to run our simulations! Using the combination of the mutate and the ifelse functions, we could use the approach we have learnt so far from dplyr to update the data for each of the stages in our loop.
+
+```{r clt6, exercise =TRUE, warning=FALSE}
+sim_results<-data.frame(sim_number=1:100,sim_mean=NA)
+for(i in 1:100){
+  sim_results<-mutate(sim_results,sim_mean=ifelse(sim_number==i,mean(rexp(n=200,rate=0.1)),sim_mean))
+}
+sim_results
+```
+But this code is quite long and complicated. This is a case where the base-R approach would be much more straightforward using the square brackets []. Square brackets let you select rows and/or columns based on the relative position.
+So `sim_results$sim_mean[1]` asks R for the first element of the `sim_mean` column within the `sim_results` dataset. We can then, instead of asking for the 1st element, ask for the i-th element within the loop. And assign this to be the result of a simulation
+
+```{r clt7, exercise =TRUE, warning=FALSE}
+sim_results<-data.frame(sim_number=1:100,sim_mean=NA)
+for(i in 1:100){
+  sim_results$sim_mean[i]<-mean(rexp(n=200,rate=0.1))
+}
+sim_results
+```
+In the end this is doing the same thing, but the code is quite a lot shorter.
+
+In fact there is an even shorter way of doing this same task, using the `replicate` function. This function requires two input arguments - the number of simulations we want to make, followed by the output we want to replicate
+
+```{r clt8, exercise =TRUE, warning=FALSE}
+replicate(100,mean(rexp(n=200,rate=0.1)))
+```
+Unlike a for loop, replicate does print out everything. So we probably do want to store this into a new data frame as well.
+
+
+```{r clt9, exercise =TRUE, warning=FALSE}
+sim_results<-data.frame(sim_mean=replicate(100,mean(rexp(n=200,rate=0.1))))
+```
+
+However we got to our simulated results, either using the for loop, or using replicate, we probably now want to check to see what the distribution of our means is.
+
+```{r clt10, exercise =TRUE, warning=FALSE}
+sim_results<-data.frame(sim_mean=replicate(100,mean(rexp(n=200,rate=0.1))))
+
+ggplot(data=sim_results,aes(x=sim_mean))+
+  geom_histogram()
+
+```
+
+Hmm... It doesn't look too bad, but it's hard to tell if it's really normally distributed or not. Let's increase the number of simulations to better see the distribution:
+
+```{r clt11, exercise =TRUE, warning=FALSE}
+sim_results<-data.frame(sim_mean=replicate(1000,mean(rexp(n=200,rate=0.1))))
+
+ggplot(data=sim_results,aes(x=sim_mean))+
+  geom_histogram()
+
+```
+
+That looks pretty normal to me!
+
+Remember that we said the central limit theorem is only valid when we have at least 20 observations? Let's try a different simulation with only 10 values being simulated within each iteration.
+
+```{r clt12, exercise =TRUE, warning=FALSE}
+sim_results_10<-data.frame(sim_mean_10=replicate(1000,mean(rexp(n=10,rate=0.1))) )
+
+ggplot(data=sim_results_10,aes(x=sim_mean_10))+
+  geom_histogram()
+
+```
+It is still not too bad - but it is clearly not a normal distribution. There is a slight negative skew in the overall distribution, because some extremely high mean values become possible with just 10 observations, but the minimum from this distribution will always be 0.
+
+It would be nice to experiment with other numbers of observations per sample, and that would be easier to do if we knew how to create functions. Well, let's learn how to create functions then!
+
+
+
+
 ## Creating functions
 
 When we have a set of commands that solves a problem that we expect to face multiple times, it may be a good idea to create a function out of these commands. That way we can call this function - in the same way we used all the functions we've seen so far - instead of having the write the commands again. Functions are a great way to keep scripts clean and readable.
@@ -529,12 +653,106 @@ Yes, it works!
 
 
 
-## Estimating pi
-
-Blah blah
 
 
 
+## Application - part 2
+
+At the end of "Application - part1", we had manage to write this command to check how the mean of 200 random values picked from an exponential distribution with rate 0.1 was distributed:
+
+```{r clt12b, exercise =TRUE, warning=FALSE}
+sim_results<-data.frame(sim_mean=replicate(1000,mean(rexp(n=200,rate=0.1))))
+
+ggplot(data=sim_results,aes(x=sim_mean))+
+  geom_histogram()
+```
+
+We would like to explore it further with different values for n and rate, but for that, it would be simpler to create a function first. So let's place our command inside a function. Let's call this function "sim_function":
+
+```{r clt13, exercise =TRUE, warning=FALSE}
+sim_function <- function(){
+  sim_results<-data.frame(sim_mean=replicate(1000,mean(rexp(n=200,rate=0.1))))
+
+  ggplot(data=sim_results,aes(x=sim_mean))+
+    geom_histogram()
+}
+
+sim_function()
+```
+
+
+Our function works, but it is not really useful for now, since we can't change the value of n. Let's add an argument to our function and replace 10 by the value of this argument. We'll call this argument n_sample:  
+
+
+```{r clt14, exercise =TRUE, warning=FALSE}
+sim_function <- function(n_sample){
+  sim_results<-data.frame(sim_mean=replicate(1000,mean(rexp(n=n_sample,rate=0.1))) )
+  ggplot(data=sim_results,aes(x=sim_mean))+
+    geom_histogram()
+}
+
+sim_function()
+
+```
+
+Oh, we forgot to add the argument in our call of the function. Let's place a 5 inside our brackets, to see the distribution of the mean of **5** independent random values, distributed exponentially with rate 0.1:
+```{r clt15, exercise =TRUE, warning=FALSE}
+sim_function <- function(n_sample){
+  sim_results<-data.frame(sim_mean=replicate(1000,mean(rexp(n=n_sample,rate=0.1))) )
+  ggplot(data=sim_results,aes(x=sim_mean))+
+    geom_histogram()
+}
+
+sim_function(5)
+
+```
+
+Yes it works.
+
+A useful function to bring multiple graphs on the same page is `grid.arrange` from the package gridExtra, where we simply indicate as arguments of the function the graphs we want to be shown on the page, separated with commas:
+
+```{r clt16, exercise =TRUE, warning=FALSE}
+sim_function <- function(n_sample){
+  sim_results<-data.frame(sim_mean=replicate(1000,mean(rexp(n=n_sample,rate=0.1))) )
+  ggplot(data=sim_results,aes(x=sim_mean))+
+    geom_histogram()
+}
+
+plot1 <- sim_function(1)
+plot5 <- sim_function(5)
+plot10 <- sim_function(20)
+plot50 <- sim_function(50)
+grid.arrange(plot1, plot5, plot10, plot50)
+```
+
+Nice. What happens if we change the rate of of the exponential distribution? Let's add a second argument to our function to explore that:
+
+```{r clt17, exercise =TRUE, warning=FALSE}
+sim_function <- function(n_sample, rate_dist){
+  sim_results<-data.frame(sim_mean=replicate(1000,mean(rexp(n=n_sample,rate=rate_dist))) )
+  ggplot(data=sim_results,aes(x=sim_mean))+
+    geom_histogram()
+}
+
+plot1 <- sim_function(10, 100)
+plot5 <- sim_function(10, 5)
+plot10 <- sim_function(10, .1)
+plot50 <- sim_function(10, .0001)
+grid.arrange(plot1, plot5, plot10, plot50)
+```
+
+Huh, it doesn't seem to change anything. Oh but that's because the rate of the exponential distribution does not affect the shape other than stretching in and out the distribution. And we can see that when we look at the x-axis.
+
+
+Try and experiment yourself with other distributions and their parameters, to see if this central limit theorem is robust in all situations.
+
+
+Also have a look at <a href="https://www.youtube.com/channel/UCeiiqmVK07qhY-wvg3IZiZQ" target="_blank">David Robertson's Youtube channel</a>. He has a great <a href="https://www.youtube.com/watch?v=nmS3UZSWYRo&list=PL19ev-r1GBwl4eZGfMc6YJIYFSx8YlzBY" target="_blank">playlist</a> of videos where he solves Puzzles through simulations:
+
+
+ 
+
+ 
 ## Finding good packages
 
 So I hope we agree that creating functions in R is not very difficult. And using loops, if/else statements and a bit of randomness, we can definitely create extremely useful functions that help us in our work. But should we write these useful functions?
