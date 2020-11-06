@@ -182,15 +182,15 @@ The first argument for all of these '**r**functions' is `n`, the number of rando
 
 
 
-Here are five random numbers coming from a uniform distribution on the interval [0 - 10]:
+Here are five random numbers coming from a uniform distribution on the interval [0,10]:
 
 ```{r simu1, exercise =TRUE}
-runif(5, min=0, max=10)
+runif(n=5, min=0, max=10)
 ```
 
-And here are 6 random numbers piked from a binomial distribution with parameters size=10 and prob=0.1
+And here are 6 random numbers picked from a binomial distribution with parameters size=10 and prob=0.1. Note that a Binomial distribution is the distribution of successes in a a sequence of independent coin-flip-like experiments
 ```{r simu2, exercise =TRUE}
-rbinom(6, size=10, prob=0.1)
+rbinom(n=6, size=10, prob=0.1)
 ```
 
 The help of R - that we access with `?` - is quite good to know what to write inside the brackets as all these functions, as they all work the same way, except for the parameters of the distribution.
@@ -233,7 +233,7 @@ If you run the command below multiple times, you will get multiple different out
 
 ```{r rep1, exercise =TRUE}
 sample(1:20, 5)
-rnorm(10)
+rnorm(n=10)
 ```
 
 But if you run the command below multiple times, you will always get the same output
@@ -241,7 +241,7 @@ But if you run the command below multiple times, you will always get the same ou
 ```{r rep2, exercise =TRUE}
 set.seed(34)
 sample(1:20, 5)
-rnorm(10)
+rnorm(n=10)
 ```
 
 
@@ -315,7 +315,7 @@ for(i in storms){
 }
 ```
 
-This may not be the most intuitive command ever but once you know that in R, a dataframe is a list of columns, in the same way as a vector c(1,2,3,4,5) is a list of values, then you can see that when we write `i in storms` we are actually saying "i in column1, column2, column3, etc.". Therefore `i in storms` will sequentially make i become each column of the dataframe storms. The function `is.numeric` will check if the column is of type numeric and return either TRUE or FALSE, hence the output.
+This may not be the most intuitive command ever but once you know that in R, a dataframe is a list of columns, in the same way as a vector c(1,2,3,4,5) is a list of values, then you can see that when we write `i in storms` we are actually saying "i in column1, column2, column3, etc.". Therefore `i in storms` will sequentially make i become each column of the dataframe storms. The function `is.numeric()` will check if the column is of type numeric and return either TRUE or FALSE, hence the output.
 
 
 ### if/else
@@ -370,7 +370,7 @@ for(i in storms){
 ```
 
 
-You may also remember the `ifelse` function, which seemed to do something similar. If/else statements and the ifelse function are definitely related and sometimes we can use them interchangeably, but they have different roles. The if/else statements are faster and more flexible in the tasks you can place inside the curly brackets. In contrast, the advantage of the ifelse function is that it works on vectors and as such, can check multiple conditions at the same time. It also looks cleaner in a script.
+You may also remember the `ifelse()` function, which seemed to do something similar. If/else statements and the `ifelse()` function are definitely related and sometimes we can use them interchangeably, but they have different roles. The if/else statements are faster and more flexible in the tasks you can place inside the curly brackets. In contrast, the advantage of the `ifelse()` function is that it works on vectors and as such, can check multiple conditions at the same time. It also looks cleaner in a script.
 
 
 
@@ -390,7 +390,7 @@ rexp(n=200,rate=0.1)
 ```
 
 
-Probably the best way to look at all these numbers is in a histogram! Remember that to use ggplot2 we need to have data stored in a data frame first. So I will create a new data frame and pipe into ggplot.
+Probably the best way to look at all these numbers is in a histogram! Remember that to use ggplot2 we need to have data stored in a data frame first. So I will create a new data frame and pipe into ggplot().
 
 
 ```{r clt2, exercise =TRUE, warning=FALSE}
@@ -399,14 +399,14 @@ data.frame(sims=rexp(n=200, rate=0.1)) %>%
     geom_histogram()
 ```
 
-Pretty clearly not a normal distribution! And you should see that every time you press run the distribution will change slightly, because a different simulation is being done.
+Pretty clearly not a normal distribution! And you should see that every time you press "Run" the distribution will change slightly, because a different simulation is being done, but the general shape will remain very similar.
 
 It would be the same if we were calculating the mean value
 
 ```{r clt3, exercise =TRUE, warning=FALSE}
 mean(rexp(n=200,rate=0.1))
 ```
-Every time we press run, a different simulation is made, and we obtain a different mean value.
+Every time we press "Rune", a different simulation is made, and we obtain a different mean value. But they should always be fairly close to 10, the mean of the distribution from which they are simulated.
 But what we might want to do is simulate this process 100 times (or 1000 times, 10000 times or 100000 times) and look at the distribution of the mean values from those simulations.
 
 We could use a for loop to run 100 simulations - we start with 100, but later, we will increase this number:
@@ -427,7 +427,7 @@ The simplest way to do this is to set up a new data frame, with one row per simu
 sim_results<-data.frame(sim_number=1:100,sim_mean=NA)
 ```
 
-We are now ready to run our simulations! Using the combination of the mutate and the ifelse functions, we could use the approach we have learnt so far from dplyr to update the data for each of the stages in our loop.
+We are now ready to run our simulations! Using the combination of the mutate and the `ifelse()` functions, we could use the approach we have learnt so far from dplyr to update the data for each of the stages in our loop.
 
 ```{r clt6, exercise =TRUE, warning=FALSE}
 sim_results<-data.frame(sim_number=1:100,sim_mean=NA)
@@ -448,7 +448,7 @@ sim_results
 ```
 In the end this is doing the same thing, but the code is quite a lot shorter.
 
-In fact there is an even shorter way of doing this same task, using the `replicate` function. This function requires two input arguments - the number of simulations we want to make, followed by the output we want to replicate
+In fact there is an even shorter way of doing this same task, using the `replicate()` function. This function requires two input arguments - the number of simulations we want to make, followed by the output we want to replicate
 
 ```{r clt8, exercise =TRUE, warning=FALSE}
 replicate(100,mean(rexp(n=200,rate=0.1)))
@@ -675,7 +675,7 @@ ggplot(data=sim_results,aes(x=sim_mean))+
   geom_histogram()
 ```
 
-We would like to explore it further with different values for n and rate, but for that, it would be simpler to create a function first. So let's place our command inside a function. Let's call this function "sim_function":
+We would like to explore it further with different values for n and rate, but for that, it would be simpler to create a function first. So let's place our command inside a function. Let's call this function "sim_function()":
 
 ```{r clt13, exercise =TRUE, warning=FALSE}
 sim_function <- function(){
@@ -689,7 +689,7 @@ sim_function()
 ```
 
 
-Our function works, but it is not really useful for now, since we can't change the value of n. Let's add an argument to our function and replace 10 by the value of this argument. We'll call this argument n_sample:  
+Our function works, but it is not really useful for now, since we can't change the value of n. Let's add an argument to our function and replace 200 by the value of this argument. We'll call this argument n_sample:  
 
 
 ```{r clt14, exercise =TRUE, warning=FALSE}
@@ -717,7 +717,7 @@ sim_function(5)
 
 Yes it works.
 
-A useful function to bring multiple graphs on the same page is `grid.arrange` from the package gridExtra, where we simply indicate as arguments of the function the graphs we want to be shown on the page, separated with commas:
+A useful function to bring multiple graphs on the same page is `grid.arrange()` from the package gridExtra, where we simply indicate as arguments of the function the graphs we want to be shown on the page, separated with commas:
 
 ```{r clt16, exercise =TRUE, warning=FALSE}
 sim_function <- function(n_sample){
@@ -849,6 +849,24 @@ But don't worry, for packages on Bioconductor and Github, the commands that you 
 ## Appendix:  Useful reference links  
 
 
+
+
+Using probability distributions in R - Data Science Blog: <a href="https://www.datascienceblog.net/post/basic-statistics/distributions/" target="_blank">https://www.datascienceblog.net/post/basic-statistics/distributions/ </a>
+
+How to Generate Pseudorandom Numbers, Infinite Series <a href="https://www.youtube.com/watch?v=C82JyCmtKWg" target="_blank">https://www.youtube.com/watch?v=C82JyCmtKWg </a>
+
+Probability distribution series of video from the Z Statistics website: <a href="http://www.zstatistics.com/videos/#/distributions" target="_blank">http://www.zstatistics.com/videos/#/distributions </a>
+
+
+David Robinson's youtube playlist of Riddler Puzzles solved via simulations in R: <a href="https://www.youtube.com/playlist?list=PL19ev-r1GBwl4eZGfMc6YJIYFSx8YlzBY" target="_blank">https://www.youtube.com/playlist?list=PL19ev-r1GBwl4eZGfMc6YJIYFSx8YlzBY </a>
+
+
+The CRAN: <a href="https://cran.r-project.org/" target="_blank">https://cran.r-project.org/ </a>
+
+Bioconductor: <a href="https://www.bioconductor.org/" target="_blank">https://www.bioconductor.org/ </a>
+
+Github: <a href="https://github.com/" target="_blank">https://github.com/ </a>
+
 The tidyverse website: <a href="https://www.tidyverse.org/" target="_blank">https://www.tidyverse.org/   </a> 
 
 Garrett Grolemund's list of recommanded packages: <a href="https://support.rstudio.com/hc/en-us/articles/201057987-Quick-list-of-useful-R-packages" target="_blank">https://support.rstudio.com/hc/en-us/articles/201057987-Quick-list-of-useful-R-packages</a> 
@@ -861,20 +879,3 @@ RDocumentation website: <a href="https://www.rdocumentation.org/" target="_blank
 
 
 RSeek: <a href="https://rseek.org/" target="_blank">https://rseek.org/ </a>
-
-The CRAN: <a href="https://cran.r-project.org/" target="_blank">https://cran.r-project.org/ </a>
-
-
-
-Bioconductor: <a href="https://www.bioconductor.org/" target="_blank">https://www.bioconductor.org/ </a>
-
-Github: <a href="https://github.com/" target="_blank">https://github.com/ </a>
-
-
-David Robinson's youtube playlist of Riddler Puzzles solved via simulations in R: <a href="https://www.youtube.com/playlist?list=PL19ev-r1GBwl4eZGfMc6YJIYFSx8YlzBY" target="_blank">https://www.youtube.com/playlist?list=PL19ev-r1GBwl4eZGfMc6YJIYFSx8YlzBY </a>
-
-Probability distribution series of video from the Z Statistics website: <a href="http://www.zstatistics.com/videos/#/distributions" target="_blank">http://www.zstatistics.com/videos/#/distributions </a>
-
-How to Generate Pseudorandom Numbers, Infinite Series <a href="https://www.youtube.com/watch?v=C82JyCmtKWg" target="_blank">https://www.youtube.com/watch?v=C82JyCmtKWg </a>
-
-Using probability distributions in R - Data Science Blog: <a href="https://www.datascienceblog.net/post/basic-statistics/distributions/" target="_blank">https://www.datascienceblog.net/post/basic-statistics/distributions/ </a>
